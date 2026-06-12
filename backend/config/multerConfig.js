@@ -28,6 +28,7 @@ const storage = multer.diskStorage({
     }
 });
 
+
 // Filtro para aceptar solo formatos de audio compatibles con HTML5
 const fileFilter = (req, file, cb) => {
     const allowedTypes = ['audio/mpeg', 'audio/wav', 'audio/ogg', 'audio/flac'];
@@ -41,7 +42,13 @@ const fileFilter = (req, file, cb) => {
     }
 };
 
-const upload = multer({ storage, fileFilter });
+const upload = multer({ 
+    storage, 
+    fileFilter,
+    limits: {
+        fileSize: 5 * 1024 * 1024 // 5 MB
+    }
+});
 
 // 'audioFile' es el nombre del campo en el formulario
 module.exports = upload.single('audioFile');
