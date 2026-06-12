@@ -40,6 +40,17 @@ class SampleRepository
         await db.execute('CALL sp_delete_sample(?, ?)', [id, userId]);
         return true;
     }
+    // agregado por bianca 
+    //  Buscar por categoría de forma segura
+    async findByCategory(category) 
+    {
+        const [rows] = await db.execute(
+            'SELECT * FROM samples WHERE category = ?', 
+            [category]
+        );
+        return rows;
+    }
+}
 }
 
 module.exports = new SampleRepository();

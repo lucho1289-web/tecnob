@@ -101,6 +101,32 @@ class SampleController
             res.status(500).json({ message: "Error al eliminar el sample.", error: error.message });
         }
     }
+    // Agreago por bianca 
+    //  Buscar samples por categoría y manejar errores de formato
+    async searchSamplesByCategory(req, res)
+    {
+        try
+        {
+            const { category } = req.query;
+
+            // VALIDACIÓN: Si no mandan categoría o mandan algo vacío, tiramos error 400 
+            if (!category || category.trim() === "")
+            {
+                return res.status(400).json({ message: "Bad Request: El parámetro 'category' es obligatorio y no puede estar vacío." });
+            }
+
+            // Si pasa la validación, llamamos al repositorio seguro
+            const samples = await sampleRepo.findByCategory(category);
+            res.json(samples);
+        }
+        catch (error)
+        {
+            // Si algo sale mal, devolvemos error 500
+            res.status(500).json({ message: "Error interno al buscar los samples.", error: error.message });
+        }
+    }
+}
+
 }
 
 module.exports = new SampleController();
