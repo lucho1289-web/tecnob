@@ -32,7 +32,45 @@
     testUtils.log(data);
     if (response.ok) testUtils.setSuccess(btn);
 });
+// Agregalo en tu archivo de tests (frontend/js/tests/sampleTests.js)
 
+testUtils.createTestButton("Test Subir Sample - Límite de Peso (413)", async (btn) => {
+await okLogin();
+  const formData = new FormData();
+  
+  // 1. Creamos un Blob que pesa 6MB (superior a los 5MB permitidos)
+  const size = 6 * 1024 * 1024;
+  const largeBlob = new Blob([new Uint8Array(size)], { type: 'audio/wav' });
+  
+  // 2. Simulamos la subida
+  formData.append('audioFile', largeBlob, 'archivo_pesado.wav');
+  formData.append('category', 'test');
+  formData.append('display_name', 'Archivo demasiado grande');
+
+  try {
+    const response = await fetch('/api/samples/upload', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('test_token')}` // Asegúrate de estar logueado
+      },
+      body: formData
+    });
+
+    const data = await response.json();
+    testUtils.log(data); // Esto mostrará el mensaje del servidor en la pantalla del test
+
+    // 3. Validación: Si recibimos un 413, el test es un ÉXITO
+    if (response.status === 413) {
+      testUtils.setSuccess(btn); // Pone el botón en verde
+    } else {
+      console.error("Esperaba un error 413, pero recibí:", response.status);
+      testUtils.setError(btn);
+    }
+  } catch (error) {
+    console.error("Error en el test:", error);
+    testUtils.setError(btn);
+  }
+});
 /**
  * Test: POST /api/samples/upload (Simulado)
  */

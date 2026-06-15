@@ -25,7 +25,7 @@
  * sin imponer estructuras rígidas.
  */
 const express = require('express');
-
+const multer = require('multer');
 /**
  * Módulo/Biblioteca que permite peticiones desde el origen del frontend:
  */
@@ -91,10 +91,20 @@ else
 
 // --- Manejo de errores global ---
 app.use((err, req, res, next) => {
+    // 1. Manejo de errores de Multer (Límite de tamaño)
+    if (err instanceof multer.MulterError) {
+        if (err.code === 'LIMIT_FILE_SIZE') {
+            return res.status(413).json({ 
+                error: "El archivo supera el límite de tamaño permitido" 
+            });
+        }
+    }
+    }
+
+    // 3. Fallback: Si no es un error de Multer conocido, devolvemos un 500 genérico
     console.error(err.stack);
     res.status(500).json({ message: "Error en el servidor", error: err.message });
 });
-
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`==========================================`);
