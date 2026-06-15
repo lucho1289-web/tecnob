@@ -24,7 +24,7 @@ class UserRepository
             'CALL sp_create_user(?, ?, ?)',
             [username, hashedPassword, role]
         );
-        // El SP realiza un SELECT v_user_id as insertId al final
+         // El SP realiza un SELECT v_user_id as insertId al final
         return rows[0][0].insertId;
     }
     
