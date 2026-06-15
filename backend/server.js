@@ -99,12 +99,6 @@ app.use((err, req, res, next) => {
             });
         }
     }
-
-    // 2. Manejo de error de tipo de archivo (definido en fileFilter en multerConfig.js)
-    if (err.message === 'Invalid file type. Only MP3, WAV, OGG and FLAC are allowed.') {
-        return res.status(415).json({ 
-            error: "Tipo de archivo no soportado" 
-        });
     }
 
     // 3. Fallback: Si no es un error de Multer conocido, devolvemos un 500 genérico
