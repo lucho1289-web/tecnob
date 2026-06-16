@@ -43,12 +43,23 @@ const fileFilter = (req, file, cb) => {
 };
 
 const upload = multer({ 
-    storage, 
+    storage:storage, 
     fileFilter,
     limits: {
-        fileSize: 5 * 1024 * 1024 // 5 MB
+        fileSize:  5* 1024 * 1024 // 5 MB
     }
 });
 
-// 'audioFile' es el nombre del campo en el formulario
-module.exports = upload.single('audioFile');
+module.exports = (req, res, next) => {
+    upload.single('audioFile')(req, res, (err) => {
+        if (err instanceof multer.MulterError && err.code === 'LIMIT_FILE_SIZE') {
+            return res.status(413).json({
+                error: "El archivo supera el límite de tamaño permitido"
+            });
+        }
+        if (err) {
+            return res.status(400).json({ error: err.message });
+        }
+        next();
+    });
+};

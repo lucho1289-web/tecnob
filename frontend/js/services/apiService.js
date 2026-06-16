@@ -25,12 +25,17 @@ const apiService = {
         }
 
         const response = await fetch(`${API_URL}${endpoint}`, config);
-        const result = await response.json();
+        let result = {};
+        const contentType = response.headers.get('content-type') || '';
+        if (contentType.includes('application/json')) {
+            result = await response.json();
+        }
 
-        // Si el token expiró (401), forzamos logout automático
         if (response.status === 401) authHelper.logout();
 
-        if (!response.ok) throw new Error(result.message || 'Error en la petición');
+        // CORRECCIÓN: el servidor manda `error`, no `message`, en los 413.
+        // Leemos ambos para cubrir todos los casos.
+        if (!response.ok) throw new Error(result.error || result.message || 'Error en la petición');
         return result;
     }
 };
