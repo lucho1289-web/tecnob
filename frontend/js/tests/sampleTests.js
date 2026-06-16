@@ -32,13 +32,12 @@
     testUtils.log(data);
     if (response.ok) testUtils.setSuccess(btn);
 });
-// Agregalo en tu archivo de tests (frontend/js/tests/sampleTests.js)
 
 testUtils.createTestButton("Test Subir Sample - Límite de Peso (413)", async (btn) => {
 await okLogin();
   const formData = new FormData();
   
-  // 1. Creamos un Blob que pesa 6MB (superior a los 5MB permitidos)
+  // 1. Creamos un archivo que pesa 6MB superior a lo permitido
   const size = 6 * 1024 * 1024;
   const largeBlob = new Blob([new Uint8Array(size)], { type: 'audio/wav' });
   
@@ -59,7 +58,7 @@ await okLogin();
     const data = await response.json();
     testUtils.log(data); // Esto mostrará el mensaje del servidor en la pantalla del test
 
-    // 3. Validación: Si recibimos un 413, el test es un ÉXITO
+    // 3. Validación: Si recibimos un 413, el test es un exito
     if (response.status === 413) {
       testUtils.setSuccess(btn); // Pone el botón en verde
     } else {
