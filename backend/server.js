@@ -25,7 +25,7 @@
  * sin imponer estructuras rígidas.
  */
 const express = require('express');
-
+const multer = require('multer');
 /**
  * Módulo/Biblioteca que permite peticiones desde el origen del frontend:
  */
@@ -57,6 +57,7 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+ 
 // --- Configuración de Carpetas y Rutas Estáticas ---
 // Carpeta de subidas (Audios) Crear 'uploads' si no existe al iniciar el server
 const uploadDir = path.join(__dirname, 'uploads');
@@ -88,13 +89,30 @@ else
 {
     app.use('/', viewRoutes);
 }
+// Aumenta el límite global para todas las rutas
+app.use(express.json({ limit: '20mb' }));
+app.use(express.urlencoded({ limit: '20mb', extended: true }));
 
 // --- Manejo de errores global ---
 app.use((err, req, res, next) => {
+    // 1. Manejo de errores de Multer (Límite de tamaño)
+    if (err instanceof multer.MulterError) {
+        if (err.code === 'LIMIT_FILE_SIZE') {
+            return res.status(413).json({ 
+                error: "El archivo supera el límite de tamaño permitido" 
+            });
+        }
+    }
+    if (err.status === 413 || err.type === 'entity.too.large') {
+        return res.status(413).json({ 
+            error: "El archivo supera el límite de tamaño permitido" 
+        });
+    }
+
+    // 3. Fallback: Si no es un error de Multer conocido, devolvemos un 500 genérico
     console.error(err.stack);
     res.status(500).json({ message: "Error en el servidor", error: err.message });
 });
-
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`==========================================`);

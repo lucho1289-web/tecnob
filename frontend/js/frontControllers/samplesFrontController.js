@@ -79,11 +79,19 @@ const uploadForm = document.getElementById('uploadForm');
 if (uploadForm) {
     uploadForm.addEventListener('submit', async (e) => {
         e.preventDefault();
+
+        // CORRECCIÓN: validar tamaño antes de enviar
+        const audioFile = document.getElementById('audioFile').files[0];
+        if (audioFile && audioFile.size > 5 * 1024 * 1024) {
+            showModal('Error al subir', 'El archivo supera el límite de tamaño permitido');
+            return;
+        }
+
         const formData = new FormData();
         formData.append('display_name', document.getElementById('display_name').value);
         formData.append('category', document.getElementById('category').value);
         formData.append('bpm', document.getElementById('bpm').value);
-        formData.append('audioFile', document.getElementById('audioFile').files[0]);
+        formData.append('audioFile', audioFile);
 
         try {
             await apiService.request('/samples/upload', 'POST', formData, true);
