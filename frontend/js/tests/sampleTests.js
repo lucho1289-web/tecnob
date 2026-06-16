@@ -30,9 +30,49 @@
     
     const data = await response.json();
     testUtils.log(data);
-    if (response.ok) testUtils.setSuccess(btn);
-});
+    if (response.ok) {
+        testUtils.setSuccess(btn);
+    }
+ });
 
+testUtils.createTestButton("Test Subir Sample - Límite de Peso (413)", async (btn) => {
+    await okLogin();
+    const formData = new FormData();
+    
+    // 1. Creamos un archivo que pesa 6MB superior a lo permitido (tu límite era 5MB)
+    const size = 6 * 1024 * 1024;
+    const largeBlob = new Blob([new Uint8Array(size)], { type: 'audio/wav' });
+    
+    // 2. Simulamos la subida
+    formData.append('audioFile', largeBlob, 'archivo_pesado.wav');
+    formData.append('category', 'test');
+    formData.append('display_name', 'Archivo demasiado grande');
+
+    try {
+        const response = await fetch('/api/samples/upload', {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem('test_token')}`
+            },
+            body: formData
+        });
+
+        // 3. Verificamos la respuesta
+        if (response.status === 413) {
+            testUtils.setSuccess(btn);
+            testUtils.log({ message: "Servidor rechazó el archivo correctamente (413)" });
+        } else {
+            // Si el servidor respondió otra cosa (ej. 500), intentamos leer el error
+            const data = await response.json().catch(() => ({ error: "Error desconocido" }));
+            testUtils.log(data);
+            testUtils.setError(btn);
+        }
+    } catch (error) {
+        // Esto captura errores de red (ej. si el servidor está apagado)
+        console.error("Error crítico en el test:", error);
+        testUtils.setError(btn);
+    }
+});
 /**
  * Test: POST /api/samples/upload (Simulado)
  */
