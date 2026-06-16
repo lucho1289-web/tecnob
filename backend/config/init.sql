@@ -59,11 +59,11 @@ INSERT INTO roles (name) VALUES ('admin'), ('producer');
 
 -- 8. Datos de prueba iniciales
 -- Usuario 'admin' (pass: 12345)
-INSERT INTO users (id, username, password) VALUES (1, 'admin', '$2b$10$.n0s847tiSxBqDvIo6Vg5ujXC5zIUmm98bTjBWnRdqX9CxxbIo7wS');
+INSERT INTO users (id, username, password) VALUES (1, 'admin', '$2b$10$vI0p1p8vQzXFh59yJqYf9O5z1bWzZg08Xw81h1Yk31yG1jG1z1g1m');
 INSERT INTO users_roles (user_id, role_id) VALUES (1, 1); -- Rol Admin
 
 -- Usuario 'pepe' (pass: 12345)
-INSERT INTO users (id, username, password) VALUES (2, 'pepe', '$2b$10$.n0s847tiSxBqDvIo6Vg5ujXC5zIUmm98bTjBWnRdqX9CxxbIo7wS');
+INSERT INTO users (id, username, password) VALUES (2, 'pepe', '$2b$10$vI0p1p8vQzXFh59yJqYf9O5z1bWzZg08Xw81h1Yk31yG1jG1z1g1m');
 INSERT INTO users_roles (user_id, role_id) VALUES (2, 2); -- Rol Producer
 
 -- ==========================================================
@@ -139,6 +139,12 @@ END //
 CREATE PROCEDURE sp_find_samples_by_user(IN p_user_id INT)
 BEGIN
     SELECT * FROM samples WHERE user_id = p_user_id;
+END //
+
+-- Buscar sample específico por su ID sin importar el dueño (Para validación #8)
+CREATE PROCEDURE sp_find_any_sample_by_id(IN p_id INT)
+BEGIN
+    SELECT * FROM samples WHERE id = p_id;
 END //
 
 -- Buscar sample específico (Validando dueño)
