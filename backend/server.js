@@ -99,7 +99,7 @@ app.use((err, req, res, next) => {
             });
         }
     }
-    }
+    
 
     // 3. Fallback: Si no es un error de Multer conocido, devolvemos un 500 genérico
     console.error(err.stack);
