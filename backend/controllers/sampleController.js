@@ -85,13 +85,22 @@ class SampleController
             const sample = await sampleRepo.findById(id, userId);
             
             if (!sample) {
-                return res.status(404).json({ message: "El sample no existe o no tienes permisos para eliminarlo." });
+                // 2. Si el usuario no es propietario del sample, verificar si existe en general
+                const existsForAnyone = await sampleRepo.findAnyById(id);
+
+                if (existsForAnyone) {
+                    // Existe, pero no tiene permiso sobre el sample.  Validación #8 (error 403)
+                    return res.status(403).json({ message: "No tienes permisos para alterar este archivo." });
+                } else { 
+                    // No existe en absoluto / ya fue borrado. Validación #9 (error 404)
+                    return res.status(404).json({ message: "El registro no existe o ya fue eliminado." });
+                }
             }
 
-            // 2. Ejecutar sp_delete_sample en la base de datos
+            // 3. Ejecutar sp_delete_sample en la base de datos
             await sampleRepo.delete(id, userId);
 
-            // 3. Eliminación física del archivo (Gestión de recursos)
+            // 4. Eliminación física del archivo (Gestión de recursos)
             fileHelper.deleteFile(sample.file_path); 
             
             return res.json({ message: "Registro eliminado y archivo físico removido con éxito." });
