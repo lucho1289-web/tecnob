@@ -13,7 +13,9 @@ const sampleController = require('../controllers/sampleController');
 const uploadMiddleware = require('../config/multerConfig');
 
 const { verifyToken } = require('../middleware/authMiddleware');
-
+// Agregado por Bianca
+// Buscar samples por categoría: GET /api/samples/search
+router.get('/search', sampleController.searchSamplesByCategory);
 // Todas las rutas de samples requieren que el usuario esté logueado
 router.use(verifyToken);
 
@@ -31,5 +33,4 @@ router.get('/search', sampleController.searchSamplesByCategory);
 
 // Eliminar un sample: DELETE /api/samples/:id
 router.delete('/:id', sampleController.deleteSample);
-ss
 module.exports = router;

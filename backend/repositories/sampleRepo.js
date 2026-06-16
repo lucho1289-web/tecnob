@@ -41,7 +41,7 @@ class SampleRepository
         return true;
     }
     // agregado por bianca 
-    //  Buscar por categoría de forma segura
+    // Buscar por categoría de forma segura
     async findByCategory(category) 
     {
         const [rows] = await db.execute(
@@ -51,6 +51,4 @@ class SampleRepository
         return rows;
     }
 }
-}
-
 module.exports = new SampleRepository();

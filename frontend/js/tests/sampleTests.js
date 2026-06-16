@@ -30,8 +30,10 @@
     
     const data = await response.json();
     testUtils.log(data);
-    if (response.ok) testUtils.setSuccess(btn);
-});
+    if (response.ok) {
+        testUtils.setSuccess(btn);
+    }
+ });
 
 /**
  * Test: POST /api/samples/upload (Simulado)
@@ -60,4 +62,41 @@ testUtils.createTestButton("Test Subir Sample (Simulado)", async (btn) => {
     const data = await response.json();
     testUtils.log(data);
     if (response.ok) testUtils.setSuccess(btn);
+});
+
+// --- LOGICA DE PRUEBA  ---
+document.addEventListener('DOMContentLoaded', () => {
+    const btn = document.getElementById('btnTestCategoria');
+    const consoleOutput = document.getElementById('api-console');
+
+    if (btn) {
+        btn.addEventListener('click', async () => {
+            if (consoleOutput) consoleOutput.textContent = "Ejecutando: GET /api/samples/search?category=Drums...\n";
+
+            try {
+                const token = localStorage.getItem('token'); 
+                const response = await fetch('/api/samples/search?category=Drums', {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                const data = await response.json();
+
+                if (consoleOutput) {
+                    if (response.ok) {
+                        consoleOutput.textContent = `✔ [200 OK] Respuesta de la API:\n\n${JSON.stringify(data, null, 2)}`;
+                        btn.style.setProperty('background-color', '#4CAF50', 'important'); 
+                        btn.style.setProperty('color', 'white', 'important');
+                    } else {
+                        consoleOutput.textContent = `❌ [ERROR ${response.status}] ${data.message}\n\n${JSON.stringify(data, null, 2)}`;
+                    }
+                }
+            } catch (error) {
+                if (consoleOutput) consoleOutput.textContent = `❌ Error de conexión:\n${error.message}`;
+            }
+        });
+    }
 });

@@ -126,7 +126,4 @@ class SampleController
         }
     }
 }
-
-}
-
 module.exports = new SampleController();
