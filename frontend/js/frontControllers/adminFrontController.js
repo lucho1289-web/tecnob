@@ -101,3 +101,40 @@ async function banUser(id) {
         showModal('Error al borrar usuario', error.message);
     }
 }
+
+
+// --- TEST AGREGADO POR B ---
+const btnTestCategoria = document.getElementById('btnTestCategoria');
+
+if (btnTestCategoria) {
+    btnTestCategoria.addEventListener('click', async () => {
+        alert("¡Botón presionado! Corriendo test de categoría...");
+        
+        try {
+            // Buscamos el token de seguridad que guardó el login
+            const token = localStorage.getItem('token'); 
+
+            // Llamamos a tu API del backend buscando la categoría 'Drums'
+            const response = await fetch('/api/samples/search?category=Drums', {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            const data = await response.json();
+
+            // Mostramos el resultado en un cartel en la pantalla
+            if (response.ok) {
+                alert("✔ TEST EXITOSO:\n" + JSON.stringify(data, null, 2));
+                console.log("Muestras encontradas:", data);
+            } else {
+                alert("❌ ERROR EN TEST: " + data.message);
+            }
+
+        } catch (error) {
+            alert("❌ ERROR DE CONEXIÓN: " + error.message);
+        }
+    });
+}
