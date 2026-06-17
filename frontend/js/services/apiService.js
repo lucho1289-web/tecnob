@@ -6,7 +6,7 @@
 */
 
 // Configuración base de la API
-const API_URL = "https://musical-computing-machine-7vg76r6x5pp5fr7gj-3000.app.github.dev/api";
+const API_URL = "/api";
 
 const apiService = {
     // Función centralizada para peticiones Fetch

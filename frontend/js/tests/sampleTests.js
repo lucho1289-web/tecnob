@@ -107,29 +107,28 @@ async function loginAs(user, password) {
     const response = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({username: user, password: password}) 
+        body: JSON.stringify({ username: user, password: password })
     });
     const data = await response.json();
     return data.token;
 }
-    
 
 /**
  * Test: DELETE /api/samples/:id - Eliminación de sample ajeno (Validación numero 8)
  * Valida que un usuario no pueda borrar un sample que pertenece a otro productor.
  */
 testUtils.createTestButton('Test #8 - Eliminar Sample Ajeno (403)', async (btn) => {
-   
+
     const tokenPepe = await loginAs('pepe', '12345');
-    // Creamos un FormData
+
     const formData = new FormData();
     formData.append('display_name', 'Sample de Pepe');
     formData.append('category', 'Drums');
     formData.append('bpm', '120');
-    
+
     const blob = new Blob(['Simulated Audio Content'], { type: 'audio/wav' });
     formData.append('audioFile', blob, 'PEPE_LOOP.wav');
-   
+
     const uploadResponse = await fetch('/api/samples/upload', {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${tokenPepe}` },
@@ -139,17 +138,22 @@ testUtils.createTestButton('Test #8 - Eliminar Sample Ajeno (403)', async (btn) 
     const sampleId = uploadData.id;
 
     const tokenAdmin = await loginAs('admin', '12345');
-    
+
     const deleteResponse = await fetch(`/api/samples/${sampleId}`, {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${tokenAdmin}` }
     });
     const deleteData = await deleteResponse.json();
-    testUtils.log(deleteData);
 
     const esperado = deleteResponse.status === 403
         && deleteData.message === 'No tienes permisos para alterar este archivo.';
 
-    if (esperado) testUtils.setSuccess(btn);
+    testUtils.log(deleteData, !esperado);
+
+    if (esperado) {
+        testUtils.setSuccess(btn);
+    } else {
+        throw new Error("No se bloqueó correctamente el borrado de un sample ajeno");
+    }
 });
 
