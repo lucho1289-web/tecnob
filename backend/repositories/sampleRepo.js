@@ -36,8 +36,8 @@ class SampleRepository
 
     async findAnyById(id)
     {
-        const [rows] = await db.execute('CALL sp_find_any_sample_by_id(?)', [id]);
-        return rows[0][0];
+        const [rows] = await db.execute('SELECT * FROM samples WHERE id = ?', [id]);
+        return rows[0];
     }
 
     // Eliminar un sample validando la propiedad del mismo
