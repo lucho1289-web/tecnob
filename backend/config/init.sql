@@ -141,12 +141,6 @@ BEGIN
     SELECT * FROM samples WHERE user_id = p_user_id;
 END //
 
--- Buscar sample específico por su ID sin importar el dueño (Para validación #8)
-CREATE PROCEDURE sp_find_any_sample_by_id(IN p_id INT)
-BEGIN
-    SELECT * FROM samples WHERE id = p_id;
-END //
-
 -- Buscar sample específico (Validando dueño)
 CREATE PROCEDURE sp_find_sample_by_id(IN p_id INT, IN p_user_id INT)
 BEGIN
