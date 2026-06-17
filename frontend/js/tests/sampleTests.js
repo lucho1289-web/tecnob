@@ -152,4 +152,35 @@ testUtils.createTestButton('Test #8 - Eliminar Sample Ajeno (403)', async (btn) 
 
     if (esperado) testUtils.setSuccess(btn);
 });
+/**
+ * Test: GET /api/samples/search - Buscar por Categoría (Ejercicio 10)
+ */
+testUtils.createTestButton("Test Buscar por Categoría (Bianca)", async (btn) => {
+    // 1. Nos aseguramos de tener una sesión válida usando la función del grupo
+    await okLogin();
+    const token = localStorage.getItem('test_token');
+    
+    // 2. Realizamos la petición de búsqueda
+    const response = await fetch('/api/samples/search?category=Drums', {
+        method: 'GET',
+        headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+        }
+    });
+    
+    const data = await response.json();
+    
+    // 3. Mostramos el resultado en la consola compartida
+    testUtils.log(data);
+    
+    // 4. Si la API responde OK, pintamos tu botón con el verde indestructible
+    if (response.ok) {
+        testUtils.setSuccess(btn); // Lógica del grupo
+        btn.style.setProperty('background-color', '#4CAF50', 'important'); // Tu fix del candado
+        btn.style.setProperty('color', 'white', 'important');
+    } else {
+        testUtils.setError(btn);
+    }
+});
 
