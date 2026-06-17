@@ -13,7 +13,9 @@ const sampleController = require('../controllers/sampleController');
 const uploadMiddleware = require('../config/multerConfig');
 
 const { verifyToken } = require('../middleware/authMiddleware');
-
+// Agregado por Bianca
+// Buscar samples por categoría: GET /api/samples/search
+router.get('/search', sampleController.searchSamplesByCategory);
 // Todas las rutas de samples requieren que el usuario esté logueado
 router.use(verifyToken);
 
@@ -23,8 +25,12 @@ router.post('/upload', uploadMiddleware, sampleController.uploadSample);
 
 // Listar mis samples: GET /api/samples/my-samples
 router.get('/my-samples', sampleController.getMySamples);
+// Agregado por Bianca
+// // Buscar samples por categoría: GET /api/samples/search
+// Cuando el usuario pegue en su navegador o herramienta de test algo como: /api/samples/search?category=Drums
+// Express va a derivar esa petición a la función segura de nuestro controlador.
+router.get('/search', sampleController.searchSamplesByCategory);
 
 // Eliminar un sample: DELETE /api/samples/:id
 router.delete('/:id', sampleController.deleteSample);
-
 module.exports = router;

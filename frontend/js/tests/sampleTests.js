@@ -30,8 +30,10 @@
     
     const data = await response.json();
     testUtils.log(data);
-    if (response.ok) testUtils.setSuccess(btn);
-});
+    if (response.ok) {
+        testUtils.setSuccess(btn);
+    }
+ });
 
 testUtils.createTestButton("Test Subir Sample - Límite de Peso (413)", async (btn) => {
     await okLogin();
@@ -99,23 +101,62 @@ testUtils.createTestButton("Test Subir Sample (Simulado)", async (btn) => {
     testUtils.log(data);
     if (response.ok) testUtils.setSuccess(btn);
 });
-testUtils.createTestButton("Test 9: Borrado Fantasma - Doble Eliminación", async(btn)=>{ //funcion para boton en test
-    await okLogin(); // primero obtengo sesion valida con token abajo
-    const token = localStorage.getItem('test_token');
 
-    const ID_INEXISTENTE = 99999; // borrar id que no existe
-    const response = await fetch(`/api/samples/${ID_INEXISTENTE}`, {
-        method: 'DELETE',       //borra o intenta borrar el id que no existe
-        headers: {'Authorization':`Bearer ${token}`}
+/** Funcion auxiliar para loguear usuarios para la validacion #8 */
+async function loginAs(user, password) {
+    const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username: user, password: password })
     });
     const data = await response.json();
+    return data.token;
+}
 
-    testUtils.log({ //verificar que el server respondio 404 con el mensaje que se espera
-        status_recibido: response.status,
-        status_esperado: 404,
-        mensaje: data.message,
-        test_aprobado: response.status === 404
-    }, response.status !== 404);
+/**
+ * Test: DELETE /api/samples/:id - Eliminación de sample ajeno (Validación numero 8)
+ * Valida que un usuario no pueda borrar un sample que pertenece a otro productor.
+ */
+testUtils.createTestButton('Test #8 - Eliminar Sample Ajeno (403)', async (btn) => {
+
+    const tokenPepe = await loginAs('pepe', '12345');
+
+    const formData = new FormData();
+    formData.append('display_name', 'Sample de Pepe');
+    formData.append('category', 'Drums');
+    formData.append('bpm', '120');
+
+    const blob = new Blob(['Simulated Audio Content'], { type: 'audio/wav' });
+    formData.append('audioFile', blob, 'PEPE_LOOP.wav');
+
+    const uploadResponse = await fetch('/api/samples/upload', {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${tokenPepe}` },
+        body: formData
+    });
+    const uploadData = await uploadResponse.json();
+    const sampleId = uploadData.id;
+
+    const tokenAdmin = await loginAs('admin', '12345');
+
+    const deleteResponse = await fetch(`/api/samples/${sampleId}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${tokenAdmin}` }
+    });
+    const deleteData = await deleteResponse.json();
+
+    const esperado = deleteResponse.status === 403
+        && deleteData.message === 'No tienes permisos para alterar este archivo.';
+
+    testUtils.log(deleteData, !esperado);
+
+    if (esperado) {
+        testUtils.setSuccess(btn);
+    } else {
+        throw new Error("No se bloqueó correctamente el borrado de un sample ajeno");
+    }
+});
+
 
     if (response.status === 404) testUtils.setSuccess(btn);
     

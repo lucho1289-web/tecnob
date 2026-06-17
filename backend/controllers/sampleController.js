@@ -84,14 +84,24 @@ class SampleController
             // 1. Obtener metadatos para conocer la ruta del archivo físico
             const sample = await sampleRepo.findById(id, userId);
             
-            if (!sample) {      //edicion por el mensaje pedido
-                return res.status(404).json({ message: "El registro no existe o ya fue eliminado." });
+          
+            if (!sample) {
+                // 2. Si el usuario no es propietario del sample, verificar si existe en general
+                const existsForAnyone = await sampleRepo.findAnyById(id);
+
+                if (existsForAnyone) {
+                    // Existe, pero no tiene permiso sobre el sample.  Validación #8 (error 403)
+                    return res.status(403).json({ message: "No tienes permisos para alterar este archivo." });
+                } else { 
+                    // No existe en absoluto / ya fue borrado. Validación #9 (error 404)
+                    return res.status(404).json({ message: "El registro no existe o ya fue eliminado." });
+               }
             }
 
-            // 2. Ejecutar sp_delete_sample en la base de datos
+            // 3. Ejecutar sp_delete_sample en la base de datos
             await sampleRepo.delete(id, userId);
 
-            // 3. Eliminación física del archivo (Gestión de recursos)
+            // 4. Eliminación física del archivo (Gestión de recursos)
             fileHelper.deleteFile(sample.file_path); 
             
             return res.json({ message: "Registro eliminado y archivo físico removido con éxito." });
@@ -101,6 +111,29 @@ class SampleController
             res.status(500).json({ message: "Error al eliminar el sample.", error: error.message });
         }
     }
-}
+    // Agreago por bianca 
+    //  Buscar samples por categoría y manejar errores de formato
+    async searchSamplesByCategory(req, res)
+    {
+        try
+        {
+            const { category } = req.query;
 
+            // VALIDACIÓN: Si no mandan categoría o mandan algo vacío, tiramos error 400 
+            if (!category || category.trim() === "")
+            {
+                return res.status(400).json({ message: "Bad Request: El parámetro 'category' es obligatorio y no puede estar vacío." });
+            }
+
+            // Si pasa la validación, llamamos al repositorio seguro
+            const samples = await sampleRepo.findByCategory(category);
+            res.json(samples);
+        }
+        catch (error)
+        {
+            // Si algo sale mal, devolvemos error 500
+            res.status(500).json({ message: "Error interno al buscar los samples.", error: error.message });
+        }
+    }
+}
 module.exports = new SampleController();

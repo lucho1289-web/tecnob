@@ -34,12 +34,27 @@ class SampleRepository
         return rows[0][0]; 
     }
 
+    async findAnyById(id)
+    {
+        const [rows] = await db.execute('SELECT * FROM samples WHERE id = ?', [id]);
+        return rows[0];
+    }
+
     // Eliminar un sample validando la propiedad del mismo
     async delete(id, userId) 
     {
         await db.execute('CALL sp_delete_sample(?, ?)', [id, userId]);
         return true;
     }
+    // agregado por bianca 
+    // Buscar por categoría de forma segura
+    async findByCategory(category) 
+    {
+        const [rows] = await db.execute(
+            'SELECT * FROM samples WHERE category = ?', 
+            [category]
+        );
+        return rows;
+    }
 }
-
 module.exports = new SampleRepository();
