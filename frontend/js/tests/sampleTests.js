@@ -156,4 +156,24 @@ testUtils.createTestButton('Test #8 - Eliminar Sample Ajeno (403)', async (btn) 
         throw new Error("No se bloqueó correctamente el borrado de un sample ajeno");
     }
 });
+    
+    testUtils.createTestButton("Test 9: Borrado Fantasma - Doble Eliminación", async(btn)=>{ //funcion para boton en test
+    await okLogin(); // primero obtengo sesion valida con token abajo
+    const token = localStorage.getItem('test_token');
 
+    const ID_INEXISTENTE = 99999; // borrar id que no existe
+    const response = await fetch(`/api/samples/${ID_INEXISTENTE}`, {
+        method: 'DELETE',       //borra o intenta borrar el id que no existe
+        headers: {'Authorization':`Bearer ${token}`}
+    });
+    const data = await response.json();
+
+    testUtils.log({ //verificar que el server respondio 404 con el mensaje que se espera
+        status_recibido: response.status,
+        status_esperado: 404,
+        mensaje: data.message,
+        test_aprobado: response.status === 404
+    }, response.status !== 404);
+
+    if (response.status === 404) testUtils.setSuccess(btn);
+});
