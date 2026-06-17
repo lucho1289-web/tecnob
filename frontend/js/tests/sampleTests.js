@@ -118,4 +118,5 @@ testUtils.createTestButton("Test 9: Borrado Fantasma - Doble Eliminación", asyn
     }, response.status !== 404);
 
     if (response.status === 404) testUtils.setSuccess(btn);
+    
 });
